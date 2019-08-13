@@ -3,8 +3,6 @@
 
 Displays information about your Sonoff switches. Allows you to control the switches in your home via the Ewelink API.
 
-![Imgur](https://i.imgur.com/VTb32Si.png)
-
 **Update 2019.08.13:**
 - [X] Initial import 
 

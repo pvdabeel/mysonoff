@@ -3,8 +3,13 @@
 
 Displays information about your Sonoff switches. Allows you to control the switches in your home via the Ewelink API.
 
+![Imgur](https://i.imgur.com/e01uIu6.png)
+
 **Update 2019.08.13:**
 - [X] Initial import 
+- [X] Retrieve and show Sonoff device list 
+- [X] Show device state and provide ability to switch state
+
 
 Builds on [sonoff-python](https://pypi.org/project/sonoff-python/)
 

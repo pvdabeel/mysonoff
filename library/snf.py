@@ -121,8 +121,6 @@ class Sonoff():
 
         resp = r.json()
 
-        print resp
-
         # get a new region to login
         if 'error' in resp and 'region' in resp and resp['error'] == HTTP_MOVED_PERMANENTLY:
             self._api_region    = resp['region']

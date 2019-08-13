@@ -229,8 +229,6 @@ class Sonoff():
             try:
                 self._ws = create_connection(('wss://{}:8080/api/ws'.format(self._wshost)), timeout=10)
 
-                print 'foo'
-
                 payload = {
                     'action'    : "userOnline",
                     'userAgent' : 'app',
@@ -247,8 +245,6 @@ class Sonoff():
                 }
 
                 self._ws.send(json.dumps(payload))
-
-                print 'bar'
 
                 wsresp = self._ws.recv()
                 # _LOGGER.error("open socket: %s", wsresp)

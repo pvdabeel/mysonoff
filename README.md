@@ -5,6 +5,9 @@ Displays information about your Sonoff switches. Allows you to control the switc
 
 ![Imgur](https://i.imgur.com/e01uIu6.png)
 
+**Update 2019.08.27:**
+- [X] Added support for Sonoff devices with multiple outlets
+
 **Update 2019.08.13:**
 - [X] Initial import 
 - [X] Retrieve and show Sonoff device list 

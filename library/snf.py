@@ -275,11 +275,11 @@ class Sonoff():
 
         device = self.get_device(deviceid)
 
-        #if outlet is not None:
-        #    _LOGGER.debug("Switching `%s - %s` on outlet %d to state: %s", \
-        #        device['deviceid'], device['name'] , (outlet+1) , new_state)
-        #else:
-        _LOGGER.debug("Switching `%s` to state: %s", deviceid, new_state)
+        if outlet is not None:
+            _LOGGER.debug("Switching `%s - %s` on outlet %d to state: %s", \
+                device['deviceid'], device['name'] , (outlet+1) , new_state)
+        else:
+            _LOGGER.debug("Switching `%s` to state: %s", deviceid, new_state)
 
         if not device:
             _LOGGER.error('unknown device to be updated')
@@ -293,12 +293,11 @@ class Sonoff():
         #       apikey      = device apikey
         #       selfApiKey  = login apikey (yes, it's typed corectly selfApikey and not selfApiKey :|)
 
-        #if outlet is not None:
-        #params = { 'switches' : device['params']['switches' }
-        #    params['switches'][outlet]['switch'] = new_state
-
-        #else:
-        params = { 'switch' : new_state }
+        if outlet is not None:
+            params = { 'switches' : device['params']['switches'] }
+            params['switches'][outlet]['switch'] = new_state
+        else:
+            params = { 'switch' : new_state }
 
         payload = {
             'action'        : 'update',
@@ -325,10 +324,10 @@ class Sonoff():
         # set also te pseudo-internal state of the device until the real refresh kicks in
         for idx, device in enumerate(self._devices):
             if device['deviceid'] == deviceid:
-                #if outlet is not None:
-                #    self._devices[idx]['params']['switches'][outlet]['switch'] = new_state
-                #else:
-                self._devices[idx]['params']['switch'] = new_state
+                if outlet is not None:
+                    self._devices[idx]['params']['switches'][outlet]['switch'] = new_state
+                else:
+                    self._devices[idx]['params']['switch'] = new_state
 
         return new_state
 

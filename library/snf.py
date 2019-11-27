@@ -54,6 +54,7 @@ HTTP_VARIANT_ALSO_VARIES          = 506
 HTTP_INSUFFICIENT_STORAGE         = 507
 HTTP_NOT_EXTENDED                 = 510
 
+logging.basicConfig()
 _LOGGER = logging.getLogger(__name__)
 
 def gen_nonce(length=8):

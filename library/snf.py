@@ -216,7 +216,7 @@ class Sonoff():
             _LOGGER.info("Re-login component")
             self.do_login()
 
-        self._devices = r.json()
+        self._devices = r.json()['devicelist'] if 'devicelist' in r.json() else r.json()
         return self._devices
 
     def get_devices(self, force_update = False):
@@ -235,6 +235,16 @@ class Sonoff():
 
     def get_user_apikey(self):
         return self._user_apikey
+
+    def get_model(self):
+        return self._model
+
+    def get_romVersion(self):
+        return self._romVersion
+
+    def get_wshost(self):
+        return self._wshost
+
 
     def _get_ws(self):
         """Check if the websocket is setup and connected."""
@@ -257,8 +267,8 @@ class Sonoff():
                     'at'        : self.get_bearer_token(),
                     'apikey'    : self.get_user_apikey(),
                     'ts'        : str(int(time.time())),
-                    'model'     : self._model,
-                    'romVersion': self._romVerion,
+                    'model'     : self.get_model(),
+                    'romVersion': self.get_romVersion(),
                     'sequence'  : str(time.time()).replace('.','')
                 }
 
@@ -267,7 +277,7 @@ class Sonoff():
                 wsresp = self._ws.recv()
                 # _LOGGER.error("open socket: %s", wsresp)
 
-            except (socket.timeout, ConnectionRefusedError, ConnectionResetError):
+            except (socket.timeout):
                 _LOGGER.error('failed to create the websocket')
                 self._ws = None
 

@@ -195,7 +195,7 @@ def main(argv):
     # --------------------------------------------------
 
     if 'debug' in argv:
-        for i in devices['devicelist']:
+        for i in devices:
             print ('>>> device: %s - %s' % (i['name'], i['params']['switch']))
         return
 
@@ -204,7 +204,7 @@ def main(argv):
     # MENU 
     # --------------------------------------------------
 
-    for i in devices['devicelist']:
+    for i in devices:
  
        outlets = i['uiid']
        devid   = i['deviceid']

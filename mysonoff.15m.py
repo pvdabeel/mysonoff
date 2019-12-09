@@ -51,6 +51,8 @@ from datetime   import date
 from tinydb     import TinyDB                   # Keep track of location and cowboy states
 from os.path    import expanduser
 
+from collections import OrderedDict
+
 import library.snf as sonoff
 
 
@@ -204,7 +206,9 @@ def main(argv):
     # MENU 
     # --------------------------------------------------
 
-    for i in devices:
+    devices_ordered = sorted(devices, key= lambda(i) : i['name'])
+
+    for i in devices_ordered:
  
        outlets = i['uiid']
        devid   = i['deviceid']

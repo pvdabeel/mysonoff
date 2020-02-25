@@ -222,19 +222,19 @@ def main(argv):
                      outletnbr  = d+1
                      outletname = name + ' (outlet ' + str(outletnbr) + ')'
                      if (state == 'on'):
-                        print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,36), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))
-                        print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,36), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))
+                        print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,39), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))
+                        print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,39), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))
                      else:
-                        print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,36), CRED, state, CEND, sys.argv[0],  'switch', devid, 'on', d, color))
-                        print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,36), CRED, state, CEND, sys.argv[0], 'switch', devid, 'on', d, color))
+                        print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,39), CRED, state, CEND, sys.argv[0],  'switch', devid, 'on', d, color))
+                        print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,39), CRED, state, CEND, sys.argv[0], 'switch', devid, 'on', d, color))
        except:             # Just one switch 
           state = i['params']['switch']
           if (state == 'on'):
-             print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,36), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', color))
-             print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,36), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', color))
+             print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,39), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', color))
+             print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,39), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', color))
           else:
-             print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,36), CRED, state, CEND, sys.argv[0],  'switch', devid, 'on', color))
-             print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,36), CRED, state, CEND, sys.argv[0], 'switch', devid, 'on', color))
+             print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,39), CRED, state, CEND, sys.argv[0],  'switch', devid, 'on', color))
+             print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,39), CRED, state, CEND, sys.argv[0], 'switch', devid, 'on', color))
  
 
 

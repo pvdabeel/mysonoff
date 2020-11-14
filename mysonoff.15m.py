@@ -220,7 +220,7 @@ def main(argv):
                   state = j['switch']
                   if (d < outlets): 
                      outletnbr  = d+1
-                     outletname = name + ' (outlet ' + str(outletnbr) + '\t'
+                     outletname = name + ' (outlet ' + str(outletnbr) + ')\t'
                      if (state == 'on'):
                         print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,46), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))
                         print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,46), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))

@@ -22,3 +22,8 @@ Builds on [sonoff-python](https://pypi.org/project/sonoff-python/)
 2. Ensure your bitbar plugins directory does not have a space in the path (A known bitbar bug)
 3. Copy [mysonoff.15m.py](mysonoff.15m.py) to your bitbar plugins folder and chmod +x the file from your terminal in that folder
 4. Run bitbar
+
+If you get a "websocket" error, perform the following: 
+
+1. sudo easy_install -mxN websocket
+2. sudo easy_install websocket_client

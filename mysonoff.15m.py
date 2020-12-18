@@ -39,7 +39,7 @@ import datetime
 import calendar
 import base64
 import math
-import keyring                                  # Cowboy access token is stored in OS X keychain
+import keyring                                  
 import getpass                                  # Getting password without showing chars in terminal.app
 import time
 import os
@@ -48,7 +48,6 @@ import requests
 import binascii
 
 from datetime   import date
-from tinydb     import TinyDB                   # Keep track of location and cowboy states
 from os.path    import expanduser
 
 from collections import OrderedDict

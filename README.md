@@ -5,6 +5,9 @@ Displays information about your Sonoff switches. Allows you to control the switc
 
 ![Imgur](https://i.imgur.com/e01uIu6.png)
 
+**Update 2021.11.02:**
+- [X] Added support for Xbar
+
 **Update 2019.08.27:**
 - [X] Added support for Sonoff devices with multiple outlets
 
@@ -18,10 +21,9 @@ Builds on [sonoff-python](https://pypi.org/project/sonoff-python/)
 
 ## Installation instructions: 
 
-1. Ensure you have [bitbar](https://github.com/matryer/bitbar/releases/latest) installed.
-2. Ensure your bitbar plugins directory does not have a space in the path (A known bitbar bug)
-3. Copy [mysonoff.15m.py](mysonoff.15m.py) to your bitbar plugins folder and chmod +x the file from your terminal in that folder
-4. Run bitbar
+1. Ensure you have [xbar](https://github.com/matryer/xbar/releases/latest) installed.
+2. Copy [mysonoff.15m.py](mysonoff.15m.py) to your xbar plugins folder and chmod +x the file from your terminal in that folder
+4. Run xbar
 
 If you get a "websocket" error, perform the following: 
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env PYTHONIOENCODING=UTF-8 /usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# <bitbar.title>MySonoff</bitbar.title>
-# <bitbar.version>v1.0</bitbar.version>
-# <bitbar.author>pvdabeel@mac.com</bitbar.author>
-# <bitbar.author.github>pvdabeel</bitbar.author.github>
-# <bitbar.desc>Control your Sonoff switches from the Mac OS X menubar</bitbar.desc>
-# <bitbar.dependencies>python</bitbar.dependencies>
+# <xbar.title>MySonoff</xbar.title>
+# <xbar.version>v1.0</xbar.version>
+# <xbar.author>pvdabeel@mac.com</xbar.author>
+# <xbar.author.github>pvdabeel</xbar.author.github>
+# <xbar.desc>Control your Sonoff switches from the Mac OS X menubar</xbar.desc>
+# <xbar.dependencies>python</xbar.dependencies>
 #
 # Licence: GPL v3
 
@@ -15,10 +15,9 @@
 # Execute in terminal.app before running : 
 #    sudo easy_install keyring
 #
-# Ensure you have bitbar installed https://github.com/matryer/bitbar/releases/latest
-# Ensure your bitbar plugins directory does not have a space in the path (known bitbar bug)
-# Copy this file to your bitbar plugins folder and chmod +x the file from your terminal in that folder
-# Run bitbar
+# Ensure you have xbar installed https://github.com/matryer/xbar/releases/latest
+# Copy this file to your xbar plugins folder and chmod +x the file from your terminal in that folder
+# Run xbar
 
 _DEBUG_ = False 
 
@@ -39,7 +38,7 @@ import datetime
 import calendar
 import base64
 import math
-import keyring                                  
+import keyring                                  # Cowboy access token is stored in OS X keychain
 import getpass                                  # Getting password without showing chars in terminal.app
 import time
 import os
@@ -48,6 +47,7 @@ import requests
 import binascii
 
 from datetime   import date
+from tinydb     import TinyDB                   # Keep track of location and cowboy states
 from os.path    import expanduser
 
 from collections import OrderedDict
@@ -62,16 +62,19 @@ state_dir    = home+'/.state/mysonoff'
 if not os.path.exists(state_dir):
     os.makedirs(state_dir)
 
+# The full path to this file                                                    
+                                                                                
+cmd_path = os.path.realpath(__file__)    
 
 # Nice ANSI colors
 CEND    = '\33[0m'
 CRED    = '\33[31m'
 CGREEN  = '\33[32m'
 CYELLOW = '\33[33m'
-CBLUE   = '\33[34m'
+CBLUE   = '\33[36m'
 
 # Support for OS X Dark Mode
-DARK_MODE=os.getenv('BitBarDarkMode',0)
+DARK_MODE=os.getenv('XBARDarkMode',0)
 
 # Pretty printing                                                               
                                                                                 
@@ -219,21 +222,21 @@ def main(argv):
                   state = j['switch']
                   if (d < outlets): 
                      outletnbr  = d+1
-                     outletname = name + ' (outlet ' + str(outletnbr) + ')\t\t'
+                     outletname = name + ' (outlet ' + str(outletnbr) + ')\t'
                      if (state == 'on'):
-                        print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,42), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))
-                        print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,42), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', d, color))
+                        print ('%s%s%s%s%s | refresh=true terminal=false shell="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,41), CGREEN, state, CEND, cmd_path, 'switch', devid, 'off', d, color))
+                        print ('%s%s%s%s%s | refresh=true alternate=true terminal=true shell="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,41), CGREEN, state, CEND, cmd_path, 'switch', devid, 'off', d, color))
                      else:
-                        print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,42), CRED, state, CEND, sys.argv[0],  'switch', devid, 'on', d, color))
-                        print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,42), CRED, state, CEND, sys.argv[0], 'switch', devid, 'on', d, color))
-       except:             # Just one switch 
+                        print ('%s%s%s%s%s | refresh=true terminal=false shell="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,41), CRED, state, CEND, cmd_path,  'switch', devid, 'on', d, color))
+                        print ('%s%s%s%s%s | refresh=true alternate=true terminal=true shell="%s" param1=%s param2=%s param3=%s param4=%s color=%s' % (prefix, justify(outletname,41), CRED, state, CEND, cmd_path, 'switch', devid, 'on', d, color))
+       except:                         # Just one switch 
           state = i['params']['switch']
           if (state == 'on'):
-             print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,42), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', color))
-             print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,42), CGREEN, state, CEND, sys.argv[0], 'switch', devid, 'off', color))
+             print ('%s%s%s%s%s | refresh=true terminal=false shell="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,41), CGREEN, state, CEND, cmd_path, 'switch', devid, 'off', color))
+             print ('%s%s%s%s%s | refresh=true alternate=true terminal=true shell="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,41), CGREEN, state, CEND, cmd_path, 'switch', devid, 'off', color))
           else:
-             print ('%s%s %s%s%s | refresh=true terminal=false bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,42), CRED, state, CEND, sys.argv[0],  'switch', devid, 'on', color))
-             print ('%s%s %s%s%s | refresh=true alternate=true terminal=true bash="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,42), CRED, state, CEND, sys.argv[0], 'switch', devid, 'on', color))
+             print ('%s%s%s%s%s | refresh=true terminal=false shell="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,41), CRED, state, CEND, cmd_path,  'switch', devid, 'on', color))
+             print ('%s%s%s%s%s | refresh=true alternate=true terminal=true shell="%s" param1=%s param2=%s param3=%s color=%s' % (prefix, justify(name,41), CRED, state, CEND, cmd_path, 'switch', devid, 'on', color))
  
 
 

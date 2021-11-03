@@ -1,7 +1,7 @@
 
-# MySonoff - OS X Menubar plugin
+# MySonoff - MacOS Menubar plugin
 
-Displays information about your Sonoff switches. Allows you to control the switches in your home via the Ewelink API.
+Displays information about your Sonoff switches in the MacOS menubar. Allows you to control the switches in your home via the Ewelink API.
 
 ![Imgur](https://i.imgur.com/e01uIu6.png)
 

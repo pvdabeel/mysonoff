@@ -21,6 +21,7 @@ Builds on [sonoff-python](https://pypi.org/project/sonoff-python/)
 
 ## Installation instructions: 
 
+0. Download [python](http://www.python.org) version 2.7  
 1. Ensure you have [xbar](https://github.com/matryer/xbar/releases/latest) installed.
 2. Copy [mysonoff.15m.py](mysonoff.15m.py) to your xbar plugins folder and chmod +x the file from your terminal in that folder
 4. Run xbar
@@ -28,4 +29,4 @@ Builds on [sonoff-python](https://pypi.org/project/sonoff-python/)
 If you get a "websocket" error, perform the following: 
 
 1. sudo easy_install -mxN websocket
-2. sudo easy_install websocket_client
+2. sudo easy_install websocket_client==0.59.0

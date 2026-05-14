@@ -19,14 +19,19 @@ Displays information about your Sonoff switches in the MacOS menubar. Allows you
 
 Builds on [sonoff-python](https://pypi.org/project/sonoff-python/)
 
-## Installation instructions: 
+## Installation instructions:
 
-0. Download [python](http://www.python.org) version 2.7  
-1. Ensure you have [xbar](https://github.com/matryer/xbar/releases/latest) installed.
-2. Copy [mysonoff.15m.py](mysonoff.15m.py) to your xbar plugins folder and chmod +x the file from your terminal in that folder
-4. Run xbar
+0. Install [Python 3](http://www.python.org) (3.8 or newer). The default shebang points at `/opt/local/bin/python3` (MacPorts); adjust if you use Homebrew or pyenv.
+1. Install the runtime dependencies: `pip3 install keyring requests websocket-client`
+2. Ensure you have [xbar](https://github.com/matryer/xbar/releases/latest) installed.
+3. Copy [mysonoff.15m.py](mysonoff.15m.py) (and the `library/` folder next to it) to your xbar plugins folder, then `chmod +x mysonoff.15m.py`.
+4. Run xbar.
 
-If you get a "websocket" error, perform the following: 
+On first launch click *Login to Sonoff* to store your credentials in the macOS Keychain. The plugin keeps a short-lived session cache under `~/.state/mysonoff/` so most refreshes skip the login round-trip.
 
-1. sudo easy_install -mxN websocket
-2. sudo easy_install websocket_client==0.59.0
+If you get a `websocket` error, make sure you installed `websocket-client` (not the older `websocket` package):
+
+```
+pip3 uninstall -y websocket
+pip3 install --upgrade websocket-client
+```

@@ -117,6 +117,9 @@ def _build_client(username, password):
     cache = _load_cache()
 
     if cache and _is_fresh(cache, 'session_ts', SESSION_TTL_SECONDS):
+        # grace_period=0: this script runs as a one-shot xbar refresh, so any
+        # rejected bearer token should re-login immediately rather than fall
+        # into the HA-style backoff that silently returns an empty device list.
         client = sonoff.Sonoff.from_session(
             username=username,
             password=password,
@@ -128,14 +131,30 @@ def _build_client(username, password):
             rom_version=cache.get('rom_version'),
             app_version=cache.get('app_version'),
             imei=cache.get('imei'),
+            grace_period=0,
         )
 
-        if _is_fresh(cache, 'devices_ts', DEVICE_CACHE_TTL_SECONDS) and 'devices' in cache:
-            client._devices = cache['devices']
+        # Only trust the cached device list if it's both fresh AND non-empty;
+        # otherwise a previous failed refresh that stored [] would silently
+        # blank the menu for the rest of the TTL window.
+        cached_devices = cache.get('devices')
+        if (
+            _is_fresh(cache, 'devices_ts', DEVICE_CACHE_TTL_SECONDS)
+            and cached_devices
+        ):
+            client._devices = cached_devices
             return client, cache
 
         try:
             client.update_devices()
+            # update_devices() may have transparently re-logged in if the
+            # cached bearer token was rejected; refresh the cache from the
+            # client so the next run picks up the new credentials.
+            cache['api_region'] = client._api_region
+            cache['bearer_token'] = client.get_bearer_token()
+            cache['user_apikey'] = client.get_user_apikey()
+            cache['wshost'] = client.get_wshost()
+            cache['session_ts'] = time.time()
             cache['devices'] = client._devices
             cache['devices_ts'] = time.time()
             _save_cache(cache)
@@ -230,6 +249,17 @@ def main(argv):
         init()
         return
 
+    # Debug runs always start from a clean slate so the output reflects a
+    # real round-trip to the API rather than whatever happens to be cached.
+    if 'debug' in argv:
+        try:
+            os.remove(CACHE_FILE)
+            print(f">>> removed cache: {CACHE_FILE}")
+        except FileNotFoundError:
+            print(f">>> no cache to remove at {CACHE_FILE}")
+        except OSError as exc:
+            print(f">>> could not remove cache: {exc}")
+
     # CASE 2: init was not called, keyring not initialized
     if DARK_MODE:
         color = '#FFFFFE'
@@ -279,8 +309,21 @@ def main(argv):
 
     # DEBUG menu
     if 'debug' in argv:
-        for d in devices:
-            print(f">>> device: {d['name']} - {d['params'].get('switch')}")
+        print(f">>> api_region: {client._api_region}")
+        print(f">>> wshost:     {client.get_wshost()}")
+        print(f">>> devices ({type(devices).__name__}, len="
+              f"{len(devices) if hasattr(devices, '__len__') else '?'}):")
+        if isinstance(devices, list):
+            for d in devices:
+                if isinstance(d, dict):
+                    name = d.get('name', '?')
+                    params = d.get('params', {}) or {}
+                    state = params.get('switch') or params.get('switches')
+                    print(f"    - {d.get('deviceid', '?')}  {name}  -> {state}")
+                else:
+                    print(f"    - {d!r}")
+        else:
+            print(f"    raw: {devices!r}")
         return
 
     devices_ordered = sorted(devices, key=lambda d: d['name'])

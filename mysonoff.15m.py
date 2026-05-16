@@ -116,7 +116,13 @@ def _build_client(username, password):
     """Return a Sonoff client, reusing a cached session when possible."""
     cache = _load_cache()
 
-    if cache and _is_fresh(cache, 'session_ts', SESSION_TTL_SECONDS):
+    if (
+        cache
+        and _is_fresh(cache, 'session_ts', SESSION_TTL_SECONDS)
+        and cache.get('bearer_token')
+        and cache.get('user_apikey')
+        and cache.get('wshost')
+    ):
         # grace_period=0: this script runs as a one-shot xbar refresh, so any
         # rejected bearer token should re-login immediately rather than fall
         # into the HA-style backoff that silently returns an empty device list.
@@ -134,12 +140,14 @@ def _build_client(username, password):
             grace_period=0,
         )
 
-        # Only trust the cached device list if it's both fresh AND non-empty;
-        # otherwise a previous failed refresh that stored [] would silently
-        # blank the menu for the rest of the TTL window.
+        # Only trust the cached device list if it's a fresh, non-empty list.
+        # An older build of this script could persist an error dict here when
+        # the bearer token expired with an unexpected error code; guard
+        # against that so stale poison heals itself on the next run.
         cached_devices = cache.get('devices')
         if (
             _is_fresh(cache, 'devices_ts', DEVICE_CACHE_TTL_SECONDS)
+            and isinstance(cached_devices, list)
             and cached_devices
         ):
             client._devices = cached_devices
@@ -147,6 +155,18 @@ def _build_client(username, password):
 
         try:
             client.update_devices()
+            # update_devices() must produce a list; anything else (None, an
+            # error dict, ...) means the token refresh didn't really succeed
+            # and we should fall through to a fresh, credentialed login rather
+            # than persist garbage for the rest of the session TTL window.
+            if not isinstance(client._devices, list):
+                raise RuntimeError(
+                    f"update_devices returned {type(client._devices).__name__}, "
+                    f"not list"
+                )
+            if not client.get_bearer_token():
+                raise RuntimeError("update_devices left bearer token unset")
+
             # update_devices() may have transparently re-logged in if the
             # cached bearer token was rejected; refresh the cache from the
             # client so the next run picks up the new credentials.
@@ -160,8 +180,12 @@ def _build_client(username, password):
             _save_cache(cache)
             return client, cache
         except Exception:
-            # cached token rejected -> fall through to fresh login
-            pass
+            # cached token rejected -> drop the poisoned cache and fall
+            # through to a fresh login below.
+            try:
+                os.remove(CACHE_FILE)
+            except OSError:
+                pass
 
     client = sonoff.Sonoff(username, password, 'eu')
     cache = {
@@ -174,7 +198,7 @@ def _build_client(username, password):
         'app_version': client.get_appVersion(),
         'imei': client._imei,
         'session_ts': time.time(),
-        'devices': client._devices,
+        'devices': client._devices if isinstance(client._devices, list) else [],
         'devices_ts': time.time(),
     }
     _save_cache(cache)

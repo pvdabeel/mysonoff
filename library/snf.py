@@ -171,7 +171,7 @@ class Sonoff:
         resp = r.json()
 
         # follow region redirect
-        if 'error' in resp and resp.get('error') == HTTP_MOVED_PERMANENTLY and 'region' in resp:
+        if isinstance(resp, dict) and resp.get('error') == HTTP_MOVED_PERMANENTLY and 'region' in resp:
             self._api_region = resp['region']
             _LOGGER.warning(
                 "found new region: >>> %s <<< (update api_region accordingly)",
@@ -180,14 +180,23 @@ class Sonoff:
             self.do_login()
             return
 
-        if 'error' in resp and resp['error'] in (HTTP_NOT_FOUND, HTTP_BAD_REQUEST):
-            # phone-number login defaults to cn region
+        if isinstance(resp, dict) and resp.get('error') in (HTTP_NOT_FOUND, HTTP_BAD_REQUEST):
+            # phone-number login defaults to cn region; retry once there.
             if '@' not in self._username and self._api_region != 'cn':
                 self._api_region = 'cn'
                 self.do_login()
-            else:
-                _LOGGER.error("Couldn't authenticate using the provided credentials!")
-            return
+                return
+            # Raise instead of returning silently so the caller (xbar wrapper)
+            # can fall back to a fresh-credentials login rather than caching a
+            # half-initialised client with an expired bearer token.
+            raise RuntimeError(
+                f"Sonoff login rejected by API (response={resp!r})"
+            )
+
+        if not isinstance(resp, dict) or 'at' not in resp or 'user' not in resp:
+            raise RuntimeError(
+                f"Sonoff login returned no access token (response={resp!r})"
+            )
 
         self._bearer_token = resp['at']
         self._user_apikey = resp['user']['apikey']
@@ -254,19 +263,32 @@ class Sonoff:
         r = self._session.get(self._devices_url(), headers=self._headers, timeout=10)
         resp = r.json()
 
-        if 'error' in resp and resp['error'] in (HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED):
+        # Any non-zero `error` field means the request failed. Sonoff's coolkit
+        # servers don't only return 400/401 for an expired bearer token -- we've
+        # seen 402/403/406 as well -- so treat *any* error as an auth problem
+        # and re-login once. Without this the error dict would be assigned to
+        # ``self._devices`` (a dict!) and silently poison the xbar cache.
+        if isinstance(resp, dict) and resp.get('error'):
             if self.is_grace_period():
                 _LOGGER.warning("Grace period activated!")
                 return self._devices
 
-            _LOGGER.info("Re-login component")
+            _LOGGER.info(
+                "Re-login component (device fetch returned error %s)",
+                resp.get('error'),
+            )
             self.do_login()
             return self._devices
 
         if isinstance(resp, dict) and 'devicelist' in resp:
             self._devices = resp['devicelist']
-        else:
+        elif isinstance(resp, list):
             self._devices = resp
+        else:
+            # Defensive: never overwrite the device list with something that
+            # isn't a list. Leaves the previous snapshot intact so the caller
+            # can decide whether to fall back to a fresh login.
+            _LOGGER.error("Unexpected device response shape: %r", resp)
         return self._devices
 
     def get_devices(self, force_update=False):
